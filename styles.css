@@ -1,0 +1,104 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    max-width: 800px;
+}
+
+/* Стили для прокручиваемого оглавления */
+#toc-container {
+    width: 100%;
+    max-width: 300px; /* Ширина оглавления */
+    max-height: 300px; /* Фиксированная высота */
+    overflow-y: auto; /* Добавляем вертикальную прокрутку */
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+#toc-container h2 {
+    text-align: center;
+}
+
+#toc ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#toc li {
+    margin: 5px 0;
+}
+
+#toc a {
+    text-decoration: none;
+    color: #007bff;
+    cursor: pointer;
+}
+
+#toc a:hover {
+    text-decoration: underline;
+}
+
+/* Стили для статей */
+.post {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+/* Кнопки пагинации */
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Поле поиска */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+    width: 100%;
+    max-width: 400px; /* Ограничиваем ширину */
+}
+
+.search-container input {
+    width: 100%;
+    padding: 12px 40px 12px 15px; /* Пространство слева и справа */
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.search-container input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* Иконка 🔍 */
+.search-container::after {
+    content: "🔍";
+    font-size: 18px;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    pointer-events: none; /* Не кликабельна */
+}
