@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         filteredPosts = [...allPosts];
         generateTOC();
-        checkURLForArticle();  // Загружаем нужную статью, если есть параметры в URL
+        checkURLForArticle();
         displayPosts();
     }
 
@@ -65,7 +65,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         tocContainer.innerHTML += "</ul>";
 
-        // Добавляем обработчики нажатий на пункты оглавления
         document.querySelectorAll("#toc a").forEach(link => {
             link.addEventListener("click", (event) => {
                 event.preventDefault();
@@ -150,6 +149,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         scrollToTop();
+    }
+
+    function searchPosts() {
+        const searchQuery = searchInput.value.toLowerCase();
+        filteredPosts = allPosts.filter(post =>
+            post.title.toLowerCase().includes(searchQuery) ||
+            post.description.toLowerCase().includes(searchQuery)
+        );
+        currentPage = 1;
+        generateTOC();
+        displayPosts();
     }
 
     function checkURLForArticle() {
