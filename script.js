@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         allPosts = [];
         for (const file of postFiles) {
             try {
-                console.log("Загружаем файл:", file);
                 const response = await fetch(file);
                 if (!response.ok) throw new Error(`Ошибка загрузки: ${file}`);
                 const text = await response.text();
@@ -54,6 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         filteredPosts = [...allPosts];
         generateTOC();
+        checkURLForArticle();  // Загружаем нужную статью, если есть параметры в URL
         displayPosts();
     }
 
@@ -61,9 +61,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         tocContainer.innerHTML = "<ul>";
         filteredPosts.forEach((post, index) => {
             const postSlug = transliterate(post.title);
-            tocContainer.innerHTML += `<li><a href="?article=${index}&title=${postSlug}">${post.title}</a></li>`;
+            tocContainer.innerHTML += `<li><a href="#" data-article="${index}" data-title="${postSlug}">${post.title}</a></li>`;
         });
         tocContainer.innerHTML += "</ul>";
+
+        // Добавляем обработчики нажатий на пункты оглавления
+        document.querySelectorAll("#toc a").forEach(link => {
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+                const articleIndex = event.target.getAttribute("data-article");
+                const articleTitle = event.target.getAttribute("data-title");
+                history.pushState({}, "", `?article=${articleIndex}&title=${articleTitle}`);
+                checkURLForArticle();
+            });
+        });
     }
 
     function scrollToTop() {
@@ -139,17 +150,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         scrollToTop();
-    }
-
-    function searchPosts() {
-        const searchQuery = searchInput.value.toLowerCase();
-        filteredPosts = allPosts.filter(post =>
-            post.title.toLowerCase().includes(searchQuery) ||
-            post.description.toLowerCase().includes(searchQuery)
-        );
-        currentPage = 1;
-        generateTOC();
-        displayPosts();
     }
 
     function checkURLForArticle() {
