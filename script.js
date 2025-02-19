@@ -1,10 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const postFiles = [
-        "posts/1.txt",
-        "posts/2.txt",
-        "posts/3.txt",
-        "posts/4.txt"
-    ]; 
+    const postsListFile = "posts/list.txt"; // Файл со списком ссылок на статьи
 
     const postsPerPage = 1;
     let currentPage = 1;
@@ -18,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const pageNumber = document.getElementById("pageNumber");
     const searchInput = document.getElementById("searchInput");
 
+    // Транслитерация для формирования URL
     function transliterate(text) {
         const ruToEn = {
             "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "yo", "ж": "zh", "з": "z",
@@ -32,14 +28,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             .trim("-");
     }
 
-    async function loadAllPosts() {
+    // Загрузка списка файлов из list.txt
+    async function loadPostList() {
+        try {
+            const response = await fetch(postsListFile);
+            if (!response.ok) throw new Error("Ошибка загрузки списка статей");
+
+            const text = await response.text();
+            const postFiles = text.split("\n").map(line => line.trim()).filter(line => line !== "");
+
+            await loadAllPosts(postFiles);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // Загрузка статей из файлов
+    async function loadAllPosts(postFiles) {
         allPosts = [];
         for (const file of postFiles) {
             try {
                 const response = await fetch(file);
                 if (!response.ok) throw new Error(`Ошибка загрузки: ${file}`);
                 const text = await response.text();
-                
+
                 const lines = text.split("\n");
                 const title = lines[0].trim();
                 const date = lines[1].trim();
@@ -57,6 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         displayPosts();
     }
 
+    // Генерация оглавления (TOC)
     function generateTOC() {
         tocContainer.innerHTML = "<ul>";
         filteredPosts.forEach((post, index) => {
@@ -76,10 +89,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    // Плавный скролл наверх страницы
     function scrollToTop() {
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // Отображение статей с аудио
     function displayPosts() {
         blogContainer.innerHTML = "";
 
@@ -116,6 +131,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         prevButton.disabled = currentPage === 1;
         nextButton.disabled = currentPage >= totalPages;
 
+        setupCopyAndShare();
+        scrollToTop();
+    }
+
+    // Копирование и шаринг ссылок
+    function setupCopyAndShare() {
         document.querySelectorAll(".copy-link").forEach(button => {
             button.addEventListener("click", (event) => {
                 const url = event.target.getAttribute("data-link");
@@ -132,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const title = event.target.getAttribute("data-title");
                 const description = event.target.getAttribute("data-description");
                 const pageUrl = event.target.getAttribute("data-url");
-                const shareText = `🎧 ${title}\n\n${description}\n\n🔗 Читать и слушать: ${pageUrl}`;
+                const shareText = `🎧 ${title}\n\n${description}\n\n🔗 Слушать: ${pageUrl}`;
 
                 if (navigator.share) {
                     navigator.share({
@@ -147,10 +168,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             });
         });
-
-        scrollToTop();
     }
 
+    // Поиск по заголовкам и описанию
     function searchPosts() {
         const searchQuery = searchInput.value.toLowerCase();
         filteredPosts = allPosts.filter(post =>
@@ -162,6 +182,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         displayPosts();
     }
 
+    // Проверка URL на наличие параметров для прямой ссылки
     function checkURLForArticle() {
         const params = new URLSearchParams(window.location.search);
         if (params.has("article")) {
@@ -174,9 +195,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // Обработчики событий
     searchInput.addEventListener("input", searchPosts);
     prevButton.addEventListener("click", () => { if (currentPage > 1) { currentPage--; displayPosts(); } });
     nextButton.addEventListener("click", () => { if (currentPage < Math.ceil(filteredPosts.length / postsPerPage)) { currentPage++; displayPosts(); } });
 
-    loadAllPosts();
+    // Загружаем список и сами статьи
+    await loadPostList();
 });
