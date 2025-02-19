@@ -1,0 +1,3 @@
+posts/1.txt
+posts/2.txt
+posts/3.txt
